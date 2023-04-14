@@ -1,12 +1,9 @@
-import sys
-import pickle
-from collections import namedtuple
 import pandas as pd
 import matplotlib.pyplot as plt
 from scipy.stats import spearmanr
 import numpy as np
 from tqdm import tqdm
-import xgboost # need version >= 1.6 for multi-label regression
+import xgboost
 
 from sklearn.metrics import roc_auc_score
 from scipy.stats import pearsonr, spearmanr, kendalltau, linregress
@@ -82,7 +79,7 @@ def get_dataframe(data):
     return df_main, label
 
 
-def evaluate_model(model, dtest, y_test=None, sum_level=-1, contrast=1, classification=False, do_plots=True):        
+def evaluate_model(model, dtest, y_test=None, sum_level=-1, contrast=1, classification=False, do_plots=True, print_benchmarks=False):        
     predicted_quantities = {None: "indel length and position", 0: "indel length", 1: "indel position", -1: ""}
     predicted_quantity = predicted_quantities[sum_level]
     
@@ -115,24 +112,34 @@ def evaluate_model(model, dtest, y_test=None, sum_level=-1, contrast=1, classifi
             plt.show()
             print(((dists <= 3) & (dists >= -3)).sum() / len(dists)*100, "% of predictions are 3bp or less off from the true second argmax")
         
-        kl_div, kl_div_dist = averageKL(pd.DataFrame.from_records(test_pred), pd.DataFrame.from_records(y_test))
-        print("KL divergence between predicted and true", predicted_quantity, "distribution:", kl_div)
+        if print_benchmarks: 
+            kl_div, kl_div_dist = averageKL(pd.DataFrame.from_records(test_pred), pd.DataFrame.from_records(y_test))
+            print("KL divergence between predicted and true", predicted_quantity, "distribution:", kl_div)
         
-        pearson, spearman = pearsonr(y_test.flatten(), test_pred.flatten())[0], spearmanr(y_test.flatten(), test_pred.flatten())[0]
-        print("Pearson correlation", pearson)
-        print("Spearman correlation", spearman)
+        if print_benchmarks: 
+            pearson, spearman = pearsonr(y_test.flatten(), test_pred.flatten())[0], spearmanr(y_test.flatten(), test_pred.flatten())[0]
+            print("Pearson correlation", pearson)
+            print("Spearman correlation", spearman)
 
-        kendall_tau = kendalltau(y_test.flatten(), test_pred.flatten())[0]
+            kendall_tau = kendalltau(y_test.flatten(), test_pred.flatten())[0]
 
-        r_squared = linregress(y_test.flatten(), test_pred.flatten())[2]**2
+            r_squared = linregress(y_test.flatten(), test_pred.flatten())[2]**2
         
-        return (kl_div, pearson, spearman, kendall_tau, r_squared), kl_div_dist
+            return (kl_div, pearson, spearman, kendall_tau, r_squared), kl_div_dist
+        
+        else:
+            return (None,)
 
 
 
 if __name__ == "__main__":
-    sum_level   = None if len(sys.argv) <= 1 else (int(sys.argv[1]) if sys.argv[1] != "None" else None)
-    feature_set = 0    if len(sys.argv) <= 2 else int(sys.argv[2])
+    import lzma
+    import sys
+    import pickle
+
+    sum_level         = None                     if len(sys.argv) <= 1 else (int(sys.argv[1]) if sys.argv[1] != "None" else None)
+    feature_set       = 0                        if len(sys.argv) <= 2 else int(sys.argv[2])
+    mosaics_data_path = "mosaics_data.pickle"    if len(sys.argv) <= 3 else sys.argv[3]
     
     use_only_energy_feat = True
     normalise_df = True # normalise the MOSAICS energy columns
@@ -141,7 +148,8 @@ if __name__ == "__main__":
     remove_some_zero_points = True # undersample points with highest argmax
 
     print("loading model...", end='')
-    models = pickle.load(open("models.pickle", "rb"))
+    with lzma.open("models.xz", "rb") as f:
+        models = pickle.load(f)
 
     # sum_level: 0: indel length, 1: indel position, None: length and position
     # feature_set: 0: sequence + energy, 1: energy only, 2: sequence only
@@ -172,10 +180,11 @@ if __name__ == "__main__":
     print("done")
 
 
-    print("loading MOSAICS data...")
-    data = pickle.load(open("mosaics_data.pickle", "rb"))
+    print("loading MOSAICS data from", mosaics_data_path, "...")
+    data = pickle.load(open(mosaics_data_path, "rb"))
 
     df_main, label = get_dataframe(data)
+    print_benchmarks = (label.to_numpy().flatten() != 0).sum() != 0 # if nonzero indel frequencies were given and are included in the label, print benchmarks
 
     if normalise_df: # min-max normalisation of the energy features (as a whole dataframe - keep units the same across energy columns)
         energy_min, energy_max = df_main.min().min(), df_main.max().max()
@@ -220,7 +229,7 @@ if __name__ == "__main__":
     pred = reg.predict(X_test)
     print("done")
 
-    benchmarks = evaluate_model(reg, X_test, y_test, config['sum_level'], 8, do_plots=False)[0]
+    benchmarks = evaluate_model(reg, X_test, y_test, config['sum_level'], 8, do_plots=False, print_benchmarks=print_benchmarks)[0]
 
     # save dataframe
     pd.DataFrame(pred, columns=label_loc.columns).to_csv("output.csv", index_label=label_loc.columns.name)

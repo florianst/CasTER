@@ -5,13 +5,10 @@ import pickle
 import numpy as np
 import pandas as pd
 import time
-from scipy.stats import spearmanr, pearsonr
 import threading
 import queue
 from shutil import copyfile
-from time import sleep
 from tqdm import tqdm
-from collections import namedtuple
 
 class Oligo:
     def __init__(self, oligoNumber, guide_sequence, target_sequence, pam_index, strand, totalReads):
@@ -211,11 +208,11 @@ def loadAllenData(oligoDir, lookupFile, maxOligos=-1, mosaicsWindow=21, numWorke
     oligo_objects = list(oligos.values())
     np.random.shuffle(oligo_objects)
     for currentOligo in oligo_objects:
-        if len(currentOligo.dict_outcomes) > 0: q.put([currentOligo, mosaicsWindow])
-        if q.qsize() >= maxOligos : break
+        q.put([currentOligo, mosaicsWindow]) # if len(currentOligo.dict_outcomes) > 0: 
+        if q.qsize() >= maxOligos and maxOligos > 0: break
     
     # start threads for a fixed number of workers, they write their results in data array
-    progress_bar = tqdm(total=maxOligos*(indelLengthRange+2)*(indelLengthRange+1)//2)
+    progress_bar = tqdm(total=q.qsize()*(indelLengthRange+2)*(indelLengthRange+1)//2)
     threads = [threading.Thread(target=MOSAICSworker, args=(q,)) for _i in range(numWorkers)]
     for thread in threads:
         thread.start() # each thread takes one array from the Queue, executes MOSAICS and writes result into data array, then takes next array
@@ -363,10 +360,10 @@ def MOSAICSworker(q):
 if __name__ == "__main__":
     import sys
 
-    indelFile  = "indels.txt" if len(sys.argv) <= 1 else sys.argv[1]
-    numWorkers = 4            if len(sys.argv) <= 2 else int(sys.argv[2])
+    oligoFile  = "oligos.txt" if len(sys.argv) <= 1 else sys.argv[1]
+    numWorkers = 48           if len(sys.argv) <= 2 else int(sys.argv[2])
     mosaicsWindow = 21        if len(sys.argv) <= 3 else int(sys.argv[3])
-    oligoFile  = ""           if len(sys.argv) <= 4 else sys.argv[4] # file containing true labels for indels, format like oligos.txt - not needed
+    indelFile  = ""           if len(sys.argv) <= 4 else sys.argv[4] # file containing true labels for indels, format like oligos.txt - not needed
 
     #TODO: test if this works on ARC when we don't give an oligo file
     # in caster.py: only calculate benchmarks for points that had a ground truth given
