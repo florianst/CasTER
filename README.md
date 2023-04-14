@@ -26,7 +26,9 @@ Positional arguments are:
 - mosaics_data_path: path to the file containing the MOSAICS energies (default: ```mosaics_data.pickle``` )
 
 ### Example
-Running ```python caster.py``` gives you an example output using precalculated MOSAICS energy features on 
+Running ```python caster.py``` gives you an example output using precalculated MOSAICS energy features.
+
+```data_FORECasT.xz``` contains precalculated MOSAICS energy features for 7000 oligos within the [FORECasT](https://github.com/felicityallen/SelfTarget) data set, which CasTER uses as a basis. Therefore, CasTER can be run out-of-the-box on [FORECasT data](https://figshare.com/articles/dataset/processed_mutational_profiles/7312067).
 
 ## Installation
 Download [MOSAICS](https://www.cs.ox.ac.uk/mosaics/Downloads.php) and install using the [instructions](https://www.cs.ox.ac.uk/mosaics/Downloads.php#standaloneinstall) given there. Move ```mosaics.x``` to the CasTER directory.
