@@ -1,0 +1,56 @@
+~sim_gen_def[
+   \simulation_typ{MIN} DBFR NM NMEN PT EEMC SEQ_PT SEQ_EEMC DBFR DBFREN
+   \minimize_tol{1.e-2}
+   \minimize_type{cg} cg bfgs samc stsamc
+   \minimize_report{2} 0  1  2
+   \energy_report{2}
+   \prop_type{cart} tors cart bend
+   \prop_tors_sig{1.e-5} 1.e-5 0.0 
+   \prop_trans_sig{.5e-5} .5e-5 0.0 
+   \prop_rot_sig{1.e-6} 1.e-6 0.0
+   \prop_tors_type{full} full side_chain
+   \replica_number{0} 10            number > 1
+   \prob_eemc_jump{0.15}
+   \eemc_disk_size{10}
+   \energy_gap{1.1} 1.1 E_i = a + b*(energy_gap)^i, (a,b) scaling
+   \total_step_mc{5000}  2000 100            number > 1
+   \local_step_md{1} 10           number > 1
+   \time_step_md{0.3} 0.5            
+   \statistics_freq{200} 10
+   \burn_in_B{10} 2
+   \burn_in_N{10} 2
+   \write_energy_unit{kcal} kcal  Ha: atomic unit, kcal: kcal/mol
+   \temperature{300} 300
+   \inter_list{none} none lnk_list
+   \random_seed{-7143580450}
+   \EEMC_Emin{-1.0} -0.04 in Ha
+   \EEMC_Emax{0.0}  0.0 in Ha
+]
+
+~sim_mol_def[
+  \system_def{residue} primitive
+  \implicit_solvent{off} scp, off
+  \ddd{DD0S} ce DD0S ce 
+  \ddd_D{80.0}
+  \ddd_D0{4.0}
+  \ddd_S{0.4}
+  \ddd_c{0.5} 2.5 
+  \ddd_e{6.0} 2.0
+  \neutralize{nucl} nucl, prot, all, off
+  \mol_parm_file{../../MOSAICS_version.3.9.2/top_database/amber/99-bs0/top_all99-bs0_prot_na_chidef.rtf}
+  \bond_database_file{../../MOSAICS_version.3.9.2/pot_database/amber/99-bs0/mosaics_amber99-bs0.bond}
+  \bend_database_file{../../MOSAICS_version.3.9.2/pot_database/amber/99-bs0/mosaics_amber99-bs0.bend}
+  \tors_database_file{../../MOSAICS_version.3.9.2/pot_database/amber/99-bs0/mosaics_amber99-bs0.tors_and_impr}
+  \onfo_database_file{../../MOSAICS_version.3.9.2/pot_database/amber/99-bs0/mosaics_amber99-bs0.onfo}
+  \inter_database_file{../../MOSAICS_version.3.9.2/pot_database/amber/99-bs0/mosaics_amber99-bs0.vdw}
+  region_database_file{region/region.data}
+  \pos_init_file{run.pdb} Input pdb file of initial conformation
+  \pos_out_file{out.pdb} Output pdb file of final conformation
+  \atom_pos_file{/dev/null} Output trajectory file - discard to save disk space
+  \epot_file{epot.out} Output potential energy file
+  \tors_pos_file{rna.tors_pos}
+  \einter_file{einter.out} Output intermolecular energy file
+  \einter_file{dna.inter_energy}
+  \hessian_file{dna.hessian}
+  \eighess_file{dna.eighess}
+]
