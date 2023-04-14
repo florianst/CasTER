@@ -37,12 +37,12 @@
   \ddd_c{0.5} 2.5 
   \ddd_e{6.0} 2.0
   \neutralize{nucl} nucl, prot, all, off
-  \mol_parm_file{../../MOSAICS_version.3.9.2/top_database/amber/99-bs0/top_all99-bs0_prot_na_chidef.rtf}
-  \bond_database_file{../../MOSAICS_version.3.9.2/pot_database/amber/99-bs0/mosaics_amber99-bs0.bond}
-  \bend_database_file{../../MOSAICS_version.3.9.2/pot_database/amber/99-bs0/mosaics_amber99-bs0.bend}
-  \tors_database_file{../../MOSAICS_version.3.9.2/pot_database/amber/99-bs0/mosaics_amber99-bs0.tors_and_impr}
-  \onfo_database_file{../../MOSAICS_version.3.9.2/pot_database/amber/99-bs0/mosaics_amber99-bs0.onfo}
-  \inter_database_file{../../MOSAICS_version.3.9.2/pot_database/amber/99-bs0/mosaics_amber99-bs0.vdw}
+  \mol_parm_file{../mosaics/MOSAICS_version.3.9.2/top_database/amber/99-bs0/top_all99-bs0_prot_na_chidef.rtf}
+  \bond_database_file{../mosaics/MOSAICS_version.3.9.2/pot_database/amber/99-bs0/mosaics_amber99-bs0.bond}
+  \bend_database_file{../mosaics/MOSAICS_version.3.9.2/pot_database/amber/99-bs0/mosaics_amber99-bs0.bend}
+  \tors_database_file{../mosaics/MOSAICS_version.3.9.2/pot_database/amber/99-bs0/mosaics_amber99-bs0.tors_and_impr}
+  \onfo_database_file{../mosaics/MOSAICS_version.3.9.2/pot_database/amber/99-bs0/mosaics_amber99-bs0.onfo}
+  \inter_database_file{../mosaics/MOSAICS_version.3.9.2/pot_database/amber/99-bs0/mosaics_amber99-bs0.vdw}
   region_database_file{region/region.data}
   \pos_init_file{run.pdb} Input pdb file of initial conformation
   \pos_out_file{out.pdb} Output pdb file of final conformation
